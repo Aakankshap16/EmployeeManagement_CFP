@@ -183,7 +183,7 @@ FROM payroll
   SELECT * FROM Department
   SELECT * FROM Project
   SELECT * FROM Task
-
+  ----------practice problem ------------------------------------------
 UPDATE Task
 SET task_name = 'Task C'
 WHERE task_id = 3
@@ -238,3 +238,122 @@ Inner JOIN Department d ON e.emp_id = d.department_id
 
 /* change data type */
 	ALTER TABLE employee ALTER COLUMN fname char(10)
+	ALTER TABLE employee ALTER COLUMN fname VARCHAR(20)
+
+--------------	/* function related sql server */------------------------------
+
+--Example of aggrigates and scaler
+
+	SELECT SUM(basic_pay) AS ToatlBasicPay FROM payroll 
+	SELECT AVG(net_pay) as AvgPay FROM payroll
+
+	SELECT MAX(p.basic_pay) AS ToatlBasicPay FROM payroll p JOIN employee e ON e.emp_id = p.payroll_id  GROUP BY income_tax 
+
+
+	CREATE FUNCTION square(@num INT)
+	RETURNS INT
+	AS
+	BEGIN
+	      DECLARE @result INT
+		  SET @result = @num * @num
+		  RETURN @result
+	END
+	SELECT dbo.Square(5)
+
+	CREATE FUNCTION dbo.area(@num1 INT, @num2 INT)
+	RETURNS INT
+	AS
+	BEGIN
+	        DECLARE @result INT
+        SET @result = @num1 * @num2
+        RETURN @result
+	END
+	SELECT dbo.area(4,5) AS AREA
+
+	CREATE FUNCTION dbo.GetFname(@emp_id INT)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT fname
+    FROM employee
+    WHERE emp_id = @emp_id
+)
+
+SELECT fname from dbo.GetFname(2)
+
+	CREATE FUNCTION dbo.GetTable(@emp_id INT)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT *
+    FROM employee
+    WHERE emp_id = @emp_id
+)
+
+SELECT * from dbo.GetTable(2)
+
+-- Example of string Functions
+
+SELECT LEN('AAKANKSHA') AS LENGTH --LENGTH
+SELECT LEFT('AAK ANKSHA',5) AS VALUE --FROM LEFT
+SELECT RIGHT('AAKANKSHA',5) AS VALUE--FROM RIGHT
+SELECT SUBSTRING('AAKANKSHA PANDEY', 7, 5) AS SUBSTRING--START FROM 7 THEN 5
+SELECT REPLACE('AAKANKSHA PANDEY', 'AAKANKSHA','ANJALI') AS NEW_VALUE -- REPLACE
+SELECT UPPER('my name is aakanksha') AS UPPER -- UPPER
+SELECT LOWER('GIVE ALL VALUE IN SMALL') AS LOWER -- LOWER
+SELECT LTRIM('     Hiiiiiiiiiiiii     ') AS VALUE --REMOVE LEFT SPACE
+SELECT RTRIM('     Hiiiiiiiiiiiii        ') AS VALUE --REMOVE RIGHT SPACE
+SELECT CONCAT('MY',' ','NAME',' ','IS',' ','AAKANKSHA','PANDEY') AS RESULT -- CONCATENATE TWO OR MORE STRINGS
+SELECT CHARINDEX('A','AAKANKSHA') -- 1ST INDEX VALUE
+SELECT ASCII('A') AS ASCII_VALUE -- ASCII VALUE OF CHAR
+SELECT CHAR(65) AS CHARACTER -- CONVERT CASCII TO CHAR
+SELECT DIFFERENCE('Hello', 'Hello') AS Similarity
+SELECT REVERSE('Hello') AS RESULT -- REVERSE STRING
+SELECT UPPER(fname) from employee
+SELECT LEN(fname) from employee
+SELECT fname,lname ,GETDATE() FROM employee
+
+
+-- EXample of string functions
+
+SELECT ABS(-100) AS PositiveValue
+SELECT CEILING(4.2) AS RoundOff
+SELECT FLOOR(4.2) AS RoundOff
+SELECT ROUND(3.1276,1)
+SELECT ROUND(3.1276,2)
+SELECT POWER(5,3) AS Power
+SELECT SQUARE(4) AS Square
+SELECT SQRT(16) AS SqRoot
+SELECT EXP(4)
+SELECT SIGN(-4) AS SignFunction
+SELECT RAND() AS RandomNo -- RANGE 0-1
+SELECT FLOOR(RAND() * 10)AS RANDOM_RANGE -- RANGE 0-9
+SELECT FLOOR(RAND() * 10)+ 7 AS RANDOM_RANGE -- 7 IS START VALUE 3-16
+SELECT COUNT(fname) from employee where address like '%Bhilai%'
+SELECT CEILING(net_pay) from payroll AS NetPay
+SELECT ROUND(basic_pay,2) from payroll AS BasicPay
+
+--Example of  Date Function
+
+SELECT CURRENT_TIMESTAMP
+SELECT SYSDATETIME()
+SELECT fname,lname,emp_id, DATEADD(day,2,start_date) FROM employee WHERE emp_id = 2
+SELECT fname,lname,emp_id, DATEADD(WEEK,2,start_date) FROM employee WHERE emp_id = 2
+SELECT fname,lname,emp_id, DATEADD(year,1,start_date) AS NEWDATE FROM employee WHERE emp_id = 2 -- USE TO ADD YEAR
+SELECT DATEDIFF(MONTH, '2023-2-15','2023-6-16') AS Difference_InMonth  --USE TO CHECK DIFF IN MONTH
+SELECT DATEDIFF(DAY, '2023-2-15','2023-6-16') AS Difference_InDay --USE TO CHECK DIFF IN DAY
+SELECT DATEDIFF(WEEK, '2023-2-15','2023-6-16') AS Difference_InWeek --USE TO CHECK DIFF IN WEEK
+SELECT DATEDIFF(YEAR, '2023-2-15','2023-6-16') AS Difference_InYear --USE TO CHECK DIFF IN YEAR
+SELECT DATEFROMPARTS(2022,4,16) AS CREATEDATE --USE TO CREATE DATE (YEAR,MONTH,DATE)
+SELECT DATEPART(YEAR,GETDATE()) -- SPECIFIC PART From date
+SELECT DATEPART(YEAR,'2023-5-12')
+SELECT DATENAME(month, '2023-05-23') AS MonthName
+SELECT DAY(CURRENT_TIMESTAMP) -- GIVE DATE (DAY) OF CURRENT
+SELECT YEAR(GETDATE()) --GIVE YEAR OF SYSTEM 
+SELECT GETUTCDATE() AS UniversalTime --Give Universal Time
+SELECT FORMAT(GETDATE(),'dd/MM/yy')
+SELECT CONVERT(VARCHAR(10), GETDATE(), 103) 
+
+
