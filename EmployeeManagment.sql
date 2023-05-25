@@ -476,4 +476,68 @@ SELECT e.emp_id, e.fname, e.lname, d.department_name
 FROM employee e
 CROSS JOIN Department d
 
+------------------------------------------STORED PRSEDURE------------------------------------
+  CREATE PROCEDURE spSTORED1
+  AS
+  BEGIN
+  SELECT * FROM employee
+  SELECT * FROM payroll
+  SELECT * FROM Department
+  SELECT * FROM Project
+  SELECT * FROM Task
+  END
+
+  spSTORED1
+
+/* If we want to add or delete queries in stored procedure */
+  ALTER PROCEDURE spSTORED1
+  AS
+  BEGIN
+  SELECT * FROM employee
+  SELECT * FROM payroll
+  SELECT * FROM Department
+  SELECT * FROM Project
+  SELECT fname FROM employee WHERE emp_id =11
+  END
+
+  exec  spSTORED1
+
+/* Parameter use in Stored Procedure */
+
+ALTER PROCEDURE spSTORED1
+@employeeID INT = 2,  -- if we not give parameter it use default value it take id = 2
+@project_name VARCHAR(10) = 'Project C'
+  AS
+  BEGIN
+  SELECT * FROM employee
+  SELECT fname FROM employee WHERE emp_id = @employeeID
+  SELECT * FROM Project WHERE project_name = @project_name
+
+  END
+
+exec spSTORED1 2, 'Project A' -- GIVE PARAMERTER ACCORDING TO SEQ OF INTIALIZE PAARMETER
+exec spSTORED1  @project_name='Project A', @employeeID =2 -- now sequence not matter
+
+exec spSTORED1  @employeeID =11  -- we can overwrite or where value not given use default value
+
+/* OUTPUT PARAMETER  */
+
+CREATE PROCEDURE spSTORED2
+ @num1 INT,
+ @num2 INT,
+ @result INT OUTPUT
+  AS
+  BEGIN
+   SET @result = @num1 * @num2
+  END
+
+  --queries for execution
+  DECLARE @op INT
+  exec spSTORED2 4, 4, @op OUTPUT
+  SELECT @op OUTPUT
+
+
+
+
+
 
