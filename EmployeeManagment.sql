@@ -356,4 +356,124 @@ SELECT GETUTCDATE() AS UniversalTime --Give Universal Time
 SELECT FORMAT(GETDATE(),'dd/MM/yy')
 SELECT CONVERT(VARCHAR(10), GETDATE(), 103) 
 
+---  using Index
+CREATE INDEX fname_index ON employee(fname)
+SELECT fname from employee
+
+DROP INDEX employee.fname_index
+
+--USER DEFINE FUNCTION
+
+CREATE FUNCTION dbo.GetFullName (@firstName VARCHAR(50), @lastName VARCHAR(50))
+RETURNS VARCHAR(100)
+AS
+BEGIN
+    DECLARE @fullName VARCHAR(100)
+    SET @fullName = @firstName + ' ' + @lastName
+    RETURN @fullName
+END
+
+SELECT dbo.GetFullName('aakanksha', 'pandey') AS FullName
+ 
+CREATE FUNCTION dbo.GetTable(@emp_id INT)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT *
+    FROM employee
+    WHERE emp_id = @emp_id
+)
+
+SELECT * from dbo.GetTable(2)
+
+CREATE FUNCTION CalculateTotalSalary(@emp_id INT)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @totalSalary FLOAT;
+    
+    SELECT @totalSalary = SUM(net_pay)
+    FROM payroll
+    WHERE payroll_id = @emp_id;
+    
+    RETURN @totalSalary
+END
+
+SELECT emp_id, fname, lname, dbo.CalculateTotalSalary(emp_id) AS total_salary
+FROM employee
+
+CREATE FUNCTION dbo.anualNetpay(@net_pay float ) -- sacalar
+	RETURNS FLOAT
+	AS
+	BEGIN
+	    DECLARE @result float
+        SET @result = @net_pay * 12
+        RETURN @result
+	END
+	SELECT SUM(dbo.anualNetpay(net_pay))as anualsalary FROM payroll
+
+
+
+
+	----------------EXAMPLE OF JOINTS QUERIES -------------------
+INSERT INTO employee (fname, lname, gender, phone_number, Email_id, address, start_date)
+VALUES
+  ('Sarah', 'Johnson', 'F', '5551234567', 'sarah@example.com', '123 Elm Street, Boston', '2023-03-01'),
+  ('Michael', 'Anderson', 'M', '5559876543', 'michael@example.com', '321 Oak Avenue, Seattle', '2023-04-15'),
+  ('Emily', 'Brown', 'F', '5551112222', 'emily@example.com', '789 Pine Road, Miami', '2023-05-01'),
+  ('Daniel', 'Davis', 'M', '5553334444', 'daniel@example.com', '456 Cedar Lane, Houston', '2023-06-15'),
+  ('Olivia', 'Martinez', 'F', '5555555555', 'olivia@example.com', '987 Maple Drive, Denver', '2023-07-01'),
+  ('Alexander', 'Garcia', 'M', '5557778888', 'alexander@example.com', '654 Birch Street, Atlanta', '2023-08-15'),
+  ('Sophia', 'Wilson', 'F', '5559990000', 'sophia@example.com', '321 Walnut Avenue, San Diego', '2023-09-01')
+
+INSERT INTO Project (project_id, project_name, start_date, end_date, department_id)
+VALUES
+  (11, 'Project K', '2023-01-01', '2023-06-30', 7),
+  (12, 'Project L', '2023-02-15', '2023-08-31', 8),
+  (13, 'Project M', '2023-01-15', '2023-06-19', 9)
+
+INSERT INTO Task (task_id, task_name, priority, project_id)
+VALUES
+  (11, 'Task K', 1, 11)
+
+INSERT INTO payroll (payroll_id, basic_pay, deductions, taxable_pay, income_tax, net_pay)
+VALUES
+  (11, 15000.00, 3000.00, 12000.00, 1500.00, 10500.00),
+  (12, 16000.00, 3200.00, 12800.00, 1600.00, 11200.00),
+   (13, 5000.00, 2400.00, 11100.00, 2000.00, 10000.00),
+  (14, 17000.00, 7600.00, 13200.00, 2500.00, 12200.00),
+   (15, 16000.00, 7000.00, 10000.00, 1000.00, 13500.00),
+  (16, 17000.00, 5200.00, 14300.00, 1600.00, 12200.00)
+
+ 
+
+
+SELECT e.emp_id, e.fname, e.lname, d.department_name
+FROM employee e
+JOIN Department d ON e.emp_id = d.manager_id
+
+
+SELECT e.emp_id, e.fname, e.lname, p.project_name
+FROM employee e
+LEFT JOIN Project p ON e.emp_id = p.department_id
+
+
+SELECT p.project_name, d.department_name
+FROM Project p
+RIGHT JOIN Department d ON p.department_id = d.department_id
+
+
+SELECT e.emp_id, e.fname, e.lname, d.department_name
+FROM employee e
+FULL OUTER JOIN Department d ON e.emp_id = d.manager_id
+
+SELECT e.emp_id, e.fname, e.lname, d.department_name
+FROM employee e
+FULL OUTER JOIN Department d ON e.emp_id = d.manager_id
+
+SELECT e.emp_id, e.fname, e.lname, d.department_name
+FROM employee e
+CROSS JOIN Department d
+
 
