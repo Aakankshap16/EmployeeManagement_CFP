@@ -477,7 +477,7 @@ FROM employee e
 CROSS JOIN Department d
 
 ------------------------------------------STORED PRSEDURE------------------------------------
-  CREATE PROCEDURE spSTORED1
+  CREATE PROC spSTORED1
   AS
   BEGIN
   SELECT * FROM employee
@@ -486,6 +486,7 @@ CROSS JOIN Department d
   SELECT * FROM Project
   SELECT * FROM Task
   END
+  
 
   spSTORED1
 
@@ -505,7 +506,7 @@ CROSS JOIN Department d
 /* Parameter use in Stored Procedure */
 
 ALTER PROCEDURE spSTORED1
-@employeeID INT = 2,  -- if we not give parameter it use default value it take id = 2
+@employeeID INT  = 2,  -- if we not give parameter it use default value it take id = 2
 @project_name VARCHAR(10) = 'Project C'
   AS
   BEGIN
@@ -536,8 +537,43 @@ CREATE PROCEDURE spSTORED2
   exec spSTORED2 4, 4, @op OUTPUT
   SELECT @op OUTPUT
 
+  -------------------------------------COMMON TABLE EXPERSSION(CTE)-------------------------------------------
 
+  WITH EmployeeDepartment AS (
+  SELECT e.emp_id, e.fname, e.lname, d.department_name
+  FROM employee e
+  JOIN Department d ON e.emp_id = d.manager_id
+)
+SELECT * FROM EmployeeDepartment
 
+--- with single WITH we can create multiple cte 
+WITH EmpProject AS (
+  SELECT e.emp_id, e.fname, e.lname, p.project_name
+  FROM employee e
+  JOIN Project p ON e.emp_id = p.department_id
+),
+TotalNetPay AS (
+  SELECT e.emp_id, e.fname, e.lname, SUM(p.net_pay) AS Total_net_pay
+  FROM employee e
+  JOIN payroll p ON e.emp_id = p.payroll_id
+  GROUP BY e.emp_id, e.fname, e.lname
+)
+SELECT * FROM EmpProject, TotalNetPay
 
+-- try to insert with cte
 
+WITH NewDepartmentValue AS
+(
+  SELECT 11 AS department_id, 'Councling' AS department_name, 'Bhilai' AS location, 11 AS manager_id
+)
+INSERT INTO Department (department_id, department_name, location, manager_id)
+SELECT department_id, department_name, location, manager_id FROM NewDepartmentValue
+
+-- try to update with cte
+WITH updateDepartment AS
+(
+  SELECT * FROM Department WHERE department_name = 'Sales'
+)
+
+UPDATE updateDepartment SET location = 'Bhilai'
 
