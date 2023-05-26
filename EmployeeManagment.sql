@@ -1322,20 +1322,18 @@ SELECT  project_id FROM Project WHERE project_name = 'Project M'
 
 ----------------------------------------CURSOR----------------------------------------------------------------------
 
--- Define variables to hold cursor data
-
-BEGIN
-
-DECLARE @empId INT
-DECLARE @empFname VARCHAR(15)
-DECLARE @empLname VARCHAR(10)
-
+---EXAMPLE1
 -- Declare a cursor or create
 DECLARE EmployeeCursor CURSOR FOR SELECT emp_id, fname,lname FROM employee
 
 
 -- Open the cursor
 OPEN EmployeeCursor
+
+-- Define variables to hold cursor data
+DECLARE @empId INT
+DECLARE @empFname VARCHAR(15)
+DECLARE @empLname VARCHAR(10)
 
 -- Fetch the first row from the cursor
 FETCH NEXT FROM EmployeeCursor INTO  @empId, @empFname, @empLname
@@ -1355,8 +1353,118 @@ END
 -- Close and deallocate the cursor
 CLOSE EmployeeCursor 
 DEALLOCATE EmployeeCursor 
+
+--EXAMPLE2
+DECLARE employee_cursor CURSOR FOR
+  SELECT e.fname, p.basic_pay FROM employee e JOIN payroll p ON e.emp_id = p.payroll_id
+  
+OPEN employee_cursor
+
+DECLARE @name VARCHAR(100)
+DECLARE @salary INT
+
+FETCH NEXT FROM employee_cursor INTO @name, @salary
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+  -- Perform operations on the fetched row
+  PRINT 'Employee: ' + @name + ', Salary: ' + CAST(@salary AS VARCHAR(10))
+  
+  FETCH NEXT FROM employee_cursor INTO @name, @salary
 END
+
+CLOSE employee_cursor
+DEALLOCATE employee_cursor
 
 ---------------------------------------------TRIGGER---------------------------------------------------------
 
+--(using after-: we can use dml commond no. of tym with single trriger)
+--(using insted-: we can use single tym with single trriger use alter only to add)
 
+--EXAMPLE 1
+-- with insert
+CREATE TRIGGER Tr1employee 
+ON employee
+AFTER INSERT
+AS
+BEGIN
+   SELECT * FROM inserted
+   
+END 
+
+INSERT INTO employee (fname, lname, gender, phone_number, Email_id, address, start_date)
+VALUES ('Aditya','Amle','F',345678,'rituuuu@gmai.com','sec-2,Bhilai','2010')
+
+--EXAMPLE 2
+--value inserted in employee
+INSERT INTO employee (fname, lname, gender, phone_number, Email_id, address, start_date)
+VALUES ('Adi','Khan','M',3457778,'aduu@gmai.com','sec-8, Durg','2011')
+
+-- with delete 
+ALTER TRIGGER Tr1employee 
+ON employee
+AFTER DELETE
+AS
+BEGIN
+   SELECT * FROM deleted
+   print 'your values is deleted'
+   
+END 
+
+ select * from employee
+ DELETE FROM employee WHERE fname = 'Aakanksha'
+
+ --EXAMPLE 3
+ -- insert ,delete in same 
+ALTER TRIGGER Tr1employee 
+ON employee
+AFTER INSERT, DELETE
+AS
+BEGIN
+    IF EXISTS(SELECT * FROM inserted)
+       BEGIN
+        SELECT * FROM inserted
+        PRINT 'New value is inserted'
+       END
+   IF EXISTS(SELECT * FROM deleted)
+      BEGIN
+        SELECT * FROM deleted
+        PRINT 'Your value is deleted'
+      END
+END
+
+
+INSERT INTO employee (fname, lname, gender, phone_number, Email_id, address, start_date) -- for practice only
+VALUES ('Adi','Khan','M',3457778,'aduu@gmai.com','sec-8, Durg','2011')
+
+--USE INSTEAD FOR SECURITY
+CREATE TRIGGER Tr2employee
+ON employee
+INSTEAD OF INSERT
+AS
+BEGIN
+   PRINT 'You can not insert more value due to some security'
+   
+END 
+
+-- try in same
+ALTER TRIGGER Tr2employee
+ON employee
+INSTEAD OF INSERT,DELETE
+AS
+BEGIN
+   IF EXISTS(SELECT * FROM inserted)
+     BEGIN
+	    PRINT 'You can not insert more value due to some security'
+	 END
+
+   IF EXISTS(SELECT * FROM deleted)
+     BEGIN
+	    PRINT 'You can not delete any value due to some security'
+	 END
+END 
+
+
+
+
+ 
