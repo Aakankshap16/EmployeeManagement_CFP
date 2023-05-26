@@ -1231,6 +1231,7 @@ SELECT * FROM EmployeeSummaryView
 DROP VIEW EmployeeSummaryView
 
 ----------------------------------------------	SUB QUERY -------------------------------------------------------------------------
+
 --SINGLE ROW SUBQUERY (use '=' for getting 0 or 1 row)
 SELECT emp_id,fname FROM employee
  WHERE emp_id = (
@@ -1296,7 +1297,7 @@ CREATE TABLE Project1 (
 
 SELECT * FROM Project1
   
-   INSERT INTO  Project1 (project_id, project_name, start_date, department_id)
+   INSERT INTO  Project1 /*(project_id, project_name, start_date, department_id)*/-- (pro_id,...) is optional 
    SELECT project_id, project_name, start_date, end_date, department_id FROM Project
  
  DROP TABLE Project1
@@ -1307,13 +1308,55 @@ SELECT * FROM Project1
   SELECT project_name FROM Project WHERE  project_id = 12
   )
 
+-----UPDATE IN SUB QUERY------
+UPDATE Project SET project_id = 12 WHERE project_id = ( 
+SELECT  project_id FROM Project WHERE project_name = 'Project M'
+)
+
 -- CORRELATED SUB QUERY(Take value of outer query and work on sub query)
  -- 2nd highest taxablepay
  SELECT taxable_pay FROM payroll ou WHERE 2 = (
  SELECT COUNT(DISTINCT taxable_pay ) FROM payroll inn
  WHERE  ou.taxable_pay <= inn.taxable_pay
- )
+  )
+
+----------------------------------------CURSOR----------------------------------------------------------------------
+
+-- Define variables to hold cursor data
+
+BEGIN
+
+DECLARE @empId INT
+DECLARE @empFname VARCHAR(15)
+DECLARE @empLname VARCHAR(10)
+
+-- Declare a cursor or create
+DECLARE EmployeeCursor CURSOR FOR SELECT emp_id, fname,lname FROM employee
 
 
+-- Open the cursor
+OPEN EmployeeCursor
+
+-- Fetch the first row from the cursor
+FETCH NEXT FROM EmployeeCursor INTO  @empId, @empFname, @empLname
+
+WHILE @@FETCH_STATUS=0
+BEGIN
+    
+	PRINT CONCAT('Employee ID: ', @empId)
+	PRINT CONCAT('First Name: ', @empFname)
+	PRINT CONCAT('Last  Name: ', @empLname)
+	PRINT '-------------------'
+
+-- Fetch the next row from the cursor
+FETCH NEXT FROM EmployeeCursor INTO  @empId, @empFname, @empLname
+
+END
+-- Close and deallocate the cursor
+CLOSE EmployeeCursor 
+DEALLOCATE EmployeeCursor 
+END
+
+---------------------------------------------TRIGGER---------------------------------------------------------
 
 
